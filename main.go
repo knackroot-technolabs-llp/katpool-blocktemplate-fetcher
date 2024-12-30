@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/joho/godotenv"
+	// "github.com/joho/godotenv"
 	"github.com/kaspanet/kaspad/app/appmessage"
 	"github.com/kaspanet/kaspad/cmd/kaspawallet/libkaspawallet"
 	"github.com/kaspanet/kaspad/infrastructure/network/rpcclient"
@@ -90,16 +90,16 @@ func (ks *KaspaApi) GetBlockTemplate(miningAddr string) (*appmessage.GetBlockTem
 
 func main() {
 	// Step 1: Load .env file
-	err := godotenv.Load("../.env")
-	if err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
-	}
+	// err := godotenv.Load(".env")
+	// if err != nil {
+	// 	log.Fatalf("Error loading .env file: %v", err)
+	// }
 
 	// Step 2: Read environment variables
 	privateKey := os.Getenv("TREASURY_PRIVATE_KEY")
 
 	// Open the JSON file
-	file, err := os.Open("./config.json")
+	file, err := os.Open("./config/config.json")
 	if err != nil {
 		fmt.Printf("Error opening file: %v\n", err)
 		return
@@ -122,18 +122,6 @@ func main() {
 	}
 	log.Println("Address : ", address)
 
-	// Initialize Kaspa API
-	num, err := strconv.Atoi(config.BlockWaitTimeSec)
-	if err != nil {
-		fmt.Println("Error: Invalid BlockWaitTimeSec : ", err)
-		return
-	}
-
-	ksApi, err := NewKaspaAPI(config.RPCServer[0], time.Duration(num) * time.Second)
-	if err != nil {
-		log.Fatalf("failed to initialize Kaspa API: %v", err)
-	}
-
 	// Initialize Redis client
 	ctx := context.Background()
 	rdb := redis.NewClient(&redis.Options{
@@ -145,6 +133,18 @@ func main() {
 	_, err = rdb.Ping(ctx).Result()
 	if err != nil {
 		log.Fatalf("could not connect to Redis: %v", err)
+	}
+
+	// Initialize Kaspa API
+	num, err := strconv.Atoi(config.BlockWaitTimeSec)
+	if err != nil {
+		fmt.Println("Error: Invalid BlockWaitTimeSec : ", err)
+		return
+	}
+
+	ksApi, err := NewKaspaAPI(config.RPCServer[0], time.Duration(num) * time.Second)
+	if err != nil {
+		log.Fatalf("failed to initialize Kaspa API: %v", err)
 	}
 
 	var templateMutex sync.Mutex
