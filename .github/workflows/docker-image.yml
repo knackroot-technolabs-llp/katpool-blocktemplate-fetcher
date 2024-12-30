@@ -1,0 +1,35 @@
+name: Docker Push kaspool-app image
+
+on:
+  push:
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  build_and_publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Extract Branch Name
+        id: extract_branch
+        run: echo "branch_name=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//-/g')" >> $GITHUB_ENV
+
+      - name: Docker Login
+        run: echo "${{ secrets.GB_KASPOOL_TOKEN }}" | docker login ${{ env.REGISTRY }} --username coinchimp --password-stdin
+
+      - name: Docker Build
+        env:
+          IMAGE_NAME: ${{ github.repository }}:v2408.1b-${{ env.branch_name }}
+        run: docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} .
+
+      - name: Docker Push
+        env:
+          IMAGE_NAME: ${{ github.repository }}:v2408.1b-${{ env.branch_name }}
+        run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
