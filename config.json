@@ -1,5 +1,5 @@
 {
-    "node" : ["localhost:36210"],
+    "node" : [""],
     "network": "mainnet",
     "block_wait_time_seconds": "3",
     "redis_address": "redis:6379",
