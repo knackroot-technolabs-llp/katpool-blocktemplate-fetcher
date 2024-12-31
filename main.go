@@ -142,7 +142,14 @@ func main() {
 		return
 	}
 
-	ksApi, err := NewKaspaAPI("kaspad-testnet10:16210", time.Duration(num) * time.Second)
+	rpcUrl := "kaspad:16110"
+	if config.Network == "testnet-10" {	
+		rpcUrl = "kaspad:16210"
+	} else if config.Network == "testnet-11" {
+		rpcUrl = "kaspad:16310"
+	}
+
+	ksApi, err := NewKaspaAPI(rpcUrl, time.Duration(num)*time.Second)
 	if err != nil {
 		log.Fatalf("failed to initialize Kaspa API: %v", err)
 	}
